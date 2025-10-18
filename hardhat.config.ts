@@ -11,8 +11,6 @@ import * as dotenv from "dotenv";
 dotenv.config();
 import "solidity-coverage";
 
-import "./tasks/accounts";
-import "./tasks/FHECounter";
 import "./tasks/GuessGame";
 
 // Run 'npx hardhat vars setup' to see the list of variables that need to be set
