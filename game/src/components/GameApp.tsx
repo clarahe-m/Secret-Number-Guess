@@ -3,7 +3,7 @@ import { ConnectButton } from '@rainbow-me/rainbowkit';
 import { useAccount } from 'wagmi';
 import { createPublicClient, http, getContract } from 'viem';
 import { sepolia } from 'viem/chains';
-import { BrowserProvider, Contract, formatEther, parseEther } from 'ethers';
+import { Contract, formatEther, parseEther } from 'ethers';
 import { useEthersSigner } from '../hooks/useEthersSigner';
 import { CONTRACT_ADDRESS, CONTRACT_ABI } from '../config/contracts';
 import { useZamaInstance } from '../hooks/useZamaInstance';
@@ -40,7 +40,6 @@ export function GameApp() {
   const { instance } = useZamaInstance();
 
   const client = useMemo(() => createPublicClient({ chain: sepolia, transport: http() }), []);
-  const [nextId, setNextId] = useState<bigint>(0n);
   const [games, setGames] = useState<{ id: number; data: GameTuple; players: string[] }[]>([]);
 
   const contractViem = useMemo(() => getContract({ address: CONTRACT_ADDRESS as `0x${string}` , abi: CONTRACT_ABI, client }), [client]);
@@ -48,7 +47,6 @@ export function GameApp() {
   async function refresh() {
     try {
       const nid = (await contractViem.read.nextGameId()) as bigint;
-      setNextId(nid);
       const items: { id: number; data: GameTuple; players: string[] }[] = [];
       for (let i = 0n; i < nid; i++) {
         const data = (await contractViem.read.getGame([i])) as unknown as GameTuple;
