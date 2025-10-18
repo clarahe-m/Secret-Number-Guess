@@ -127,9 +127,10 @@ contract GuessGame is SepoliaConfig {
         require(g.phase == GamePhase.Lobby, "not lobby");
         require(g.players.length == g.maxPlayers, "not ready");
 
-        // Random in [0,99] then +1 => [1,100]
-        euint8 rnd = FHE.randEuint8(100);
-        g.encryptedRandomA = FHE.add(rnd, 1);
+        // Generate random value in [0,127], map to [0,99], then shift to [1,100]
+        euint8 rnd = FHE.randEuint8(128);
+        euint8 modded = FHE.rem(rnd, 100);
+        g.encryptedRandomA = FHE.add(modded, 1);
 
         // Contract needs access later
         FHE.allowThis(g.encryptedRandomA);
@@ -255,4 +256,3 @@ contract GuessGame is SepoliaConfig {
         return a > b ? a - b : b - a;
     }
 }
-
