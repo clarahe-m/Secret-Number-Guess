@@ -183,7 +183,18 @@ export function GameApp() {
           );
         })}
       </section>
+
+      <section style={{ marginTop: 24, background: '#fff', border: '1px solid #eee', borderRadius: 8, padding: 16 }}>
+        <h3>How to Play</h3>
+        <ol style={{ paddingLeft: 20, lineHeight: 1.6 }}>
+          <li>Connect your wallet and create a new game with a chosen player count or join an existing lobby.</li>
+          <li>Joining a game requires a 0.001&nbsp;ETH entry fee that builds the shared prize pool.</li>
+          <li>Once the lobby is full, any participant can start the round to lock in an encrypted random number between 1 and 100.</li>
+          <li>During the guessing phase, each player submits their encrypted guess in the 1&nbsp;to&nbsp;100 range.</li>
+          <li>After all guesses are in, anyone can end the game to trigger decryption of the random number and every submitted guess.</li>
+          <li>The player whose guess is closest to the decrypted number becomes the winner and can claim the entire prize pool.</li>
+        </ol>
+      </section>
     </div>
   );
 }
-
