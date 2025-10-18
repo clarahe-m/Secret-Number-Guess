@@ -328,58 +328,74 @@ export function GameApp() {
         </div>
 
         <div className="how-to-play-section">
-          <div className="card card-accent">
-            <div className="card-header">
-              <h2 className="card-title">📖 How to Play</h2>
+          <h2 className="section-title" style={{ marginBottom: '24px' }}>📖 How to Play</h2>
+
+          <div className="steps-container">
+            <div className="step-card">
+              <div className="step-icon" style={{ background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)' }}>
+                <span>🔗</span>
+              </div>
+              <h3 className="step-title">Connect Wallet</h3>
+              <p className="step-description">Connect your Web3 wallet to start playing. Create a new game or join an existing lobby.</p>
             </div>
-            <div className="how-to-steps">
-              <div className="step">
-                <div className="step-number">1</div>
-                <div className="step-content">
-                  <h4>Connect & Create</h4>
-                  <p>Connect your wallet and create a new game or join an existing lobby</p>
-                </div>
+
+            <div className="step-arrow">→</div>
+
+            <div className="step-card">
+              <div className="step-icon" style={{ background: 'linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)' }}>
+                <span>💎</span>
               </div>
-              <div className="step">
-                <div className="step-number">2</div>
-                <div className="step-content">
-                  <h4>Pay Entry Fee</h4>
-                  <p>Join with 0.001 ETH that builds the shared prize pool</p>
-                </div>
-              </div>
-              <div className="step">
-                <div className="step-number">3</div>
-                <div className="step-content">
-                  <h4>Game Starts</h4>
-                  <p>An encrypted random number (1-100) is generated on-chain</p>
-                </div>
-              </div>
-              <div className="step">
-                <div className="step-number">4</div>
-                <div className="step-content">
-                  <h4>Submit Guess</h4>
-                  <p>Enter your encrypted guess between 1 and 100</p>
-                </div>
-              </div>
-              <div className="step">
-                <div className="step-number">5</div>
-                <div className="step-content">
-                  <h4>Reveal Results</h4>
-                  <p>After all guesses, trigger decryption to reveal the winner</p>
-                </div>
-              </div>
-              <div className="step">
-                <div className="step-number">6</div>
-                <div className="step-content">
-                  <h4>Claim Prize</h4>
-                  <p>The closest guess wins the entire prize pool!</p>
-                </div>
-              </div>
+              <h3 className="step-title">Pay Entry Fee</h3>
+              <p className="step-description">Join with 0.001 ETH entry fee that builds the shared prize pool for the winner.</p>
             </div>
-            <div className="privacy-note">
-              <div className="privacy-icon">🔒</div>
-              <div>
-                <strong>Privacy Guaranteed:</strong> All guesses and the random number remain encrypted using Fully Homomorphic Encryption (FHE) until the game ends.
+
+            <div className="step-arrow">→</div>
+
+            <div className="step-card">
+              <div className="step-icon" style={{ background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)' }}>
+                <span>🎲</span>
+              </div>
+              <h3 className="step-title">Game Starts</h3>
+              <p className="step-description">An encrypted random number (1-100) is generated securely on-chain when game starts.</p>
+            </div>
+
+            <div className="step-arrow">→</div>
+
+            <div className="step-card">
+              <div className="step-icon" style={{ background: 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)' }}>
+                <span>🔐</span>
+              </div>
+              <h3 className="step-title">Submit Guess</h3>
+              <p className="step-description">Enter your encrypted guess (1-100). Your guess stays private using FHE encryption.</p>
+            </div>
+
+            <div className="step-arrow">→</div>
+
+            <div className="step-card">
+              <div className="step-icon" style={{ background: 'linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%)' }}>
+                <span>🔓</span>
+              </div>
+              <h3 className="step-title">Reveal Winner</h3>
+              <p className="step-description">After all guesses submitted, trigger decryption to reveal the secret number and winner.</p>
+            </div>
+
+            <div className="step-arrow">→</div>
+
+            <div className="step-card">
+              <div className="step-icon" style={{ background: 'linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%)' }}>
+                <span>🏆</span>
+              </div>
+              <h3 className="step-title">Claim Prize</h3>
+              <p className="step-description">The player with the closest guess wins the entire prize pool. Winner takes all!</p>
+            </div>
+          </div>
+
+          <div className="fhe-banner">
+            <div className="fhe-banner-content">
+              <div className="fhe-icon">🔒</div>
+              <div className="fhe-text">
+                <h3>Privacy-First Gaming with FHE</h3>
+                <p>All guesses and the random number remain fully encrypted on-chain using Fully Homomorphic Encryption (FHE) technology by Zama. No one can see or manipulate the data until the game officially ends, ensuring complete fairness and transparency.</p>
               </div>
             </div>
           </div>
