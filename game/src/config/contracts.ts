@@ -1,6 +1,6 @@
 // GuessGame contract deployed on Sepolia
 // Update this constant after deployment to Sepolia
-export const CONTRACT_ADDRESS = '0x26dC0F9148C77dC68F0C8c5912Aa4bB594e27a82';
+export const CONTRACT_ADDRESS = '0xc4FE05C891dFE9ea1f73D453822d46e21971bF7a';
 
 // Copied from contract build ABI (kept inline to avoid importing .json in frontend)
 export const CONTRACT_ABI = [
