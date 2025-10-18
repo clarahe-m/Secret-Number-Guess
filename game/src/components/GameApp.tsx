@@ -7,6 +7,7 @@ import { BrowserProvider, Contract, formatEther, parseEther } from 'ethers';
 import { useEthersSigner } from '../hooks/useEthersSigner';
 import { CONTRACT_ADDRESS, CONTRACT_ABI } from '../config/contracts';
 import { useZamaInstance } from '../hooks/useZamaInstance';
+import './GameApp.css';
 
 type GameTuple = [
   string, // creator
@@ -24,6 +25,13 @@ const PHASE_LABEL: Record<number, string> = {
   1: 'Started',
   2: 'DecryptionPending',
   3: 'Finished'
+};
+
+const PHASE_COLOR: Record<number, string> = {
+  0: '#3b82f6',
+  1: '#10b981',
+  2: '#f59e0b',
+  3: '#8b5cf6'
 };
 
 export function GameApp() {
@@ -119,82 +127,264 @@ export function GameApp() {
   const [guessInputs, setGuessInputs] = useState<Record<number, string>>({});
 
   return (
-    <div style={{ maxWidth: 900, margin: '0 auto', padding: 20 }}>
-      <header style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
-        <h2>Secret Number Guess</h2>
-        <ConnectButton />
+    <div className="game-container">
+      <header className="header">
+        <div className="header-content">
+          <div className="logo-section">
+            <div className="logo-icon">🎲</div>
+            <div>
+              <h1 className="title">Secret Number Guess</h1>
+              <p className="subtitle">Privacy-First Blockchain Gaming</p>
+            </div>
+          </div>
+          <ConnectButton />
+        </div>
       </header>
 
-      <section style={{ background: '#fff', border: '1px solid #eee', borderRadius: 8, padding: 16, marginBottom: 16 }}>
-        <h3>Create Game</h3>
-        <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
-          <label>Players:</label>
-          <input type="number" min={2} max={10} value={maxPlayers} onChange={(e) => setMaxPlayers(parseInt(e.target.value || '2'))} style={{ width: 80 }} />
-          <button onClick={() => createGame(maxPlayers)} disabled={!address}>Create</button>
+      <div className="main-content">
+        <div className="create-game-section">
+          <div className="card">
+            <div className="card-header">
+              <h2 className="card-title">🎮 Create New Game</h2>
+            </div>
+            <div className="create-game-form">
+              <div className="form-group">
+                <label className="label">Number of Players</label>
+                <select
+                  className="select-input"
+                  value={maxPlayers}
+                  onChange={(e) => setMaxPlayers(parseInt(e.target.value))}
+                >
+                  {[2, 3, 4, 5, 6, 7, 8, 9, 10].map(n => (
+                    <option key={n} value={n}>{n} Players</option>
+                  ))}
+                </select>
+              </div>
+              <button
+                className="btn btn-primary btn-large"
+                onClick={() => createGame(maxPlayers)}
+                disabled={!address}
+              >
+                {address ? '🚀 Create Game' : '🔒 Connect Wallet First'}
+              </button>
+            </div>
+          </div>
         </div>
-      </section>
 
-      <section style={{ background: '#fff', border: '1px solid #eee', borderRadius: 8, padding: 16 }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <h3>Games</h3>
-          <button onClick={refresh}>Refresh</button>
+        <div className="games-section">
+          <div className="section-header">
+            <h2 className="section-title">🎯 Active Games</h2>
+            <button className="btn btn-secondary" onClick={refresh}>
+              🔄 Refresh
+            </button>
+          </div>
+
+          {games.length === 0 ? (
+            <div className="empty-state">
+              <div className="empty-icon">🎲</div>
+              <h3>No games yet</h3>
+              <p>Be the first to create a game!</p>
+            </div>
+          ) : (
+            <div className="games-grid">
+              {games.map(({ id, data, players }) => {
+                const [, maxP, phase, playerCount, prize, winner, prizeClaimed, clearA] = data;
+                const myGuess = guessInputs[id] || '';
+                const isWinner = address && winner.toLowerCase() === address.toLowerCase();
+
+                return (
+                  <div key={id} className="game-card">
+                    <div className="game-card-header">
+                      <div className="game-id">Game #{id}</div>
+                      <span
+                        className="phase-badge"
+                        style={{ backgroundColor: PHASE_COLOR[phase] }}
+                      >
+                        {PHASE_LABEL[phase]}
+                      </span>
+                    </div>
+
+                    <div className="game-info">
+                      <div className="info-row">
+                        <span className="info-label">👥 Players</span>
+                        <span className="info-value">{playerCount.toString()} / {maxP}</span>
+                      </div>
+                      <div className="info-row">
+                        <span className="info-label">💰 Prize Pool</span>
+                        <span className="info-value prize">{formatEther(prize)} ETH</span>
+                      </div>
+                      {phase === 3 && (
+                        <>
+                          <div className="info-row">
+                            <span className="info-label">🎲 Secret Number</span>
+                            <span className="info-value highlight">{clearA}</span>
+                          </div>
+                          {isWinner && (
+                            <div className="winner-badge">
+                              🏆 You Won!
+                            </div>
+                          )}
+                        </>
+                      )}
+                    </div>
+
+                    {players.length > 0 && (
+                      <div className="players-list">
+                        <div className="players-label">Participants:</div>
+                        <div className="players-addresses">
+                          {players.map((p, idx) => (
+                            <div
+                              key={idx}
+                              className={`player-address ${p.toLowerCase() === address?.toLowerCase() ? 'is-you' : ''}`}
+                              title={p}
+                            >
+                              {p.toLowerCase() === address?.toLowerCase() ? '👤 You' : `${p.slice(0, 6)}...${p.slice(-4)}`}
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
+                    <div className="game-actions">
+                      {phase === 0 && (
+                        <>
+                          <button
+                            className="btn btn-primary btn-block"
+                            onClick={() => joinGame(id)}
+                            disabled={!address}
+                          >
+                            💎 Join (0.001 ETH)
+                          </button>
+                          {Number(playerCount) === maxP && (
+                            <button
+                              className="btn btn-success btn-block"
+                              onClick={() => startGame(id)}
+                              disabled={!address}
+                            >
+                              ▶️ Start Game
+                            </button>
+                          )}
+                        </>
+                      )}
+
+                      {phase === 1 && (
+                        <>
+                          <div className="guess-input-group">
+                            <input
+                              type="number"
+                              className="guess-input"
+                              placeholder="Enter 1-100"
+                              min="1"
+                              max="100"
+                              value={myGuess}
+                              onChange={(e) => setGuessInputs((s) => ({ ...s, [id]: e.target.value }))}
+                            />
+                            <button
+                              className="btn btn-primary"
+                              onClick={() => submitGuess(id, Math.max(1, Math.min(100, parseInt(myGuess || '0'))))}
+                              disabled={!address || !myGuess}
+                            >
+                              🔐 Submit
+                            </button>
+                          </div>
+                          <button
+                            className="btn btn-warning btn-block"
+                            onClick={() => endGame(id)}
+                            disabled={!address}
+                          >
+                            🏁 End Game
+                          </button>
+                        </>
+                      )}
+
+                      {phase === 2 && (
+                        <div className="loading-state">
+                          <div className="spinner"></div>
+                          <span>Decrypting results...</span>
+                        </div>
+                      )}
+
+                      {phase === 3 && !prizeClaimed && isWinner && (
+                        <button
+                          className="btn btn-success btn-block btn-glow"
+                          onClick={() => claim(id)}
+                          disabled={!address}
+                        >
+                          🏆 Claim Prize
+                        </button>
+                      )}
+
+                      {phase === 3 && prizeClaimed && (
+                        <div className="claimed-state">
+                          ✅ Prize Claimed
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          )}
         </div>
-        {games.length === 0 && <p>No games yet.</p>}
-        {games.map(({ id, data, players }) => {
-          const [creator, maxP, phase, playerCount, prize, winner, prizeClaimed, clearA] = data;
-          const myGuess = guessInputs[id] || '';
-          return (
-            <div key={id} style={{ borderTop: '1px solid #eee', paddingTop: 12, marginTop: 12 }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <div>
-                  <div>Game #{id} • Phase: {PHASE_LABEL[phase]} • Players: {playerCount.toString()} / {maxP}</div>
-                  <div>Creator: {creator}</div>
-                  <div>Prize: {formatEther(prize)} ETH</div>
-                  {phase === 3 && (
-                    <div>Random A: {clearA} • Winner: {winner}</div>
-                  )}
-                  <div>Participants: {players.join(', ') || '-'}</div>
+
+        <div className="how-to-play-section">
+          <div className="card card-accent">
+            <div className="card-header">
+              <h2 className="card-title">📖 How to Play</h2>
+            </div>
+            <div className="how-to-steps">
+              <div className="step">
+                <div className="step-number">1</div>
+                <div className="step-content">
+                  <h4>Connect & Create</h4>
+                  <p>Connect your wallet and create a new game or join an existing lobby</p>
                 </div>
-                <div style={{ display: 'flex', gap: 8 }}>
-                  {phase === 0 && <button onClick={() => joinGame(id)} disabled={!address}>Join (0.001 ETH)</button>}
-                  {phase === 0 && Number(playerCount) === maxP && (
-                    <button onClick={() => startGame(id)} disabled={!address}>Start</button>
-                  )}
-                  {phase === 1 && (
-                    <>
-                      <input
-                        placeholder="1-100"
-                        value={myGuess}
-                        onChange={(e) => setGuessInputs((s) => ({ ...s, [id]: e.target.value }))}
-                        style={{ width: 90 }}
-                      />
-                      <button onClick={() => submitGuess(id, Math.max(1, Math.min(100, parseInt(myGuess || '0'))))} disabled={!address || !myGuess}>Submit Guess</button>
-                    </>
-                  )}
-                  {phase === 1 && (
-                    <button onClick={() => endGame(id)} disabled={!address}>End Game</button>
-                  )}
-                  {phase === 3 && !prizeClaimed && (
-                    <button onClick={() => claim(id)} disabled={!address}>Claim</button>
-                  )}
+              </div>
+              <div className="step">
+                <div className="step-number">2</div>
+                <div className="step-content">
+                  <h4>Pay Entry Fee</h4>
+                  <p>Join with 0.001 ETH that builds the shared prize pool</p>
+                </div>
+              </div>
+              <div className="step">
+                <div className="step-number">3</div>
+                <div className="step-content">
+                  <h4>Game Starts</h4>
+                  <p>An encrypted random number (1-100) is generated on-chain</p>
+                </div>
+              </div>
+              <div className="step">
+                <div className="step-number">4</div>
+                <div className="step-content">
+                  <h4>Submit Guess</h4>
+                  <p>Enter your encrypted guess between 1 and 100</p>
+                </div>
+              </div>
+              <div className="step">
+                <div className="step-number">5</div>
+                <div className="step-content">
+                  <h4>Reveal Results</h4>
+                  <p>After all guesses, trigger decryption to reveal the winner</p>
+                </div>
+              </div>
+              <div className="step">
+                <div className="step-number">6</div>
+                <div className="step-content">
+                  <h4>Claim Prize</h4>
+                  <p>The closest guess wins the entire prize pool!</p>
                 </div>
               </div>
             </div>
-          );
-        })}
-      </section>
-
-      <section style={{ marginTop: 24, background: '#fff', border: '1px solid #eee', borderRadius: 8, padding: 16 }}>
-        <h3>How to Play</h3>
-        <ol style={{ paddingLeft: 20, lineHeight: 1.6 }}>
-          <li>Connect your wallet and create a new game with a chosen player count or join an existing lobby.</li>
-          <li>Joining a game requires a 0.001&nbsp;ETH entry fee that builds the shared prize pool.</li>
-          <li>Once the lobby is full, any participant can start the round to lock in an encrypted random number between 1 and 100.</li>
-          <li>During the guessing phase, each player submits their encrypted guess in the 1&nbsp;to&nbsp;100 range.</li>
-          <li>After all guesses are in, anyone can end the game to trigger decryption of the random number and every submitted guess.</li>
-          <li>The player whose guess is closest to the decrypted number becomes the winner and can claim the entire prize pool.</li>
-        </ol>
-      </section>
+            <div className="privacy-note">
+              <div className="privacy-icon">🔒</div>
+              <div>
+                <strong>Privacy Guaranteed:</strong> All guesses and the random number remain encrypted using Fully Homomorphic Encryption (FHE) until the game ends.
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   );
 }
