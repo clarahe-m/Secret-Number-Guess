@@ -2,9 +2,9 @@
 pragma solidity ^0.8.24;
 
 import {FHE, euint8, externalEuint8} from "@fhevm/solidity/lib/FHE.sol";
-import {SepoliaConfig} from "@fhevm/solidity/config/ZamaConfig.sol";
+import {ZamaEthereumConfig} from "@fhevm/solidity/config/ZamaConfig.sol";
 
-contract GuessGame is SepoliaConfig {
+contract GuessGame is ZamaEthereumConfig {
     uint256 public constant MIN_PLAYERS = 2;
     uint256 public constant MAX_PLAYERS = 10;
     uint256 public constant ENTRY_FEE = 0.001 ether;
@@ -181,15 +181,16 @@ contract GuessGame is SepoliaConfig {
         cts[0] = FHE.toBytes32(g.encryptedRandomA);
         for (uint256 i = 0; i < g.players.length; i++) {
             cts[1 + i] = FHE.toBytes32(g.encryptedGuesses[g.players[i]]);
+            FHE.makePubliclyDecryptable(g.encryptedGuesses[g.players[i]]);
         }
+        
+        // uint256 reqId = FHE.requestDecryption(cts, this.decryptionCallback.selector);
+        // g.latestRequestId = reqId;
+        // g.decryptionPending = true;
+        // g.phase = GamePhase.DecryptionPending;
+        // requestIdToGameId[reqId] = gameId;
 
-        uint256 reqId = FHE.requestDecryption(cts, this.decryptionCallback.selector);
-        g.latestRequestId = reqId;
-        g.decryptionPending = true;
-        g.phase = GamePhase.DecryptionPending;
-        requestIdToGameId[reqId] = gameId;
-
-        emit DecryptionRequested(gameId, reqId);
+        // emit DecryptionRequested(gameId, reqId);
     }
 
     function decryptionCallback(
@@ -202,7 +203,7 @@ contract GuessGame is SepoliaConfig {
         require(g.maxPlayers != 0, "not found");
         require(g.decryptionPending && g.phase == GamePhase.DecryptionPending, "not pending");
 
-        FHE.checkSignatures(requestId, cleartexts, decryptionProof);
+        // FHE.checkSignatures(requestId, cleartexts, decryptionProof);
 
         // Expect ABI-encoded dynamic array of uint8: [A, guesses...]
         // Fallback: if not array, this call will revert; in that case, adjust as necessary.
